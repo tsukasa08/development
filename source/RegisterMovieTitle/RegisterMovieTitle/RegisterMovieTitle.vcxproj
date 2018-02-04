@@ -79,9 +79,11 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Module.cpp" />
+    <ClCompile Include="NextWindow.cpp" />
     <ClCompile Include="StartWindow.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="NextWindow.h" />
     <ClInclude Include="StartWindow.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
