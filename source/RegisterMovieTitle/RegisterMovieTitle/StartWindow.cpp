@@ -1,11 +1,14 @@
 #include "StartWindow.h"
+#include "XML.h"
 #include <vector>
 #include <string>
+
 
 //static変数定義
 HINSTANCE StartWindow::m_hInstance;
 
 NextWindow* StartWindow::m_obj;
+XMLWindow* StartWindow::m_xmlobj;
 std::map<std::string, HWND> StartWindow::m_HandleList;
 
 //コンストラクタ
@@ -22,6 +25,7 @@ StartWindow::StartWindow(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpC
 	m_nCmdShow = nCmdShow;
 
 	m_obj = new NextWindow(hInstance, hPrevInstance, lpCmdLine, nCmdShow);
+	m_xmlobj = new XMLWindow(hInstance, hPrevInstance, lpCmdLine, nCmdShow);
 }
 
 //デストラクタ
@@ -78,7 +82,7 @@ bool StartWindow::Create(){
 	HWND StartWindowhWnd = CreateWindow(
 		TEXT("StartWindow"), // ウインドウクラス名
 		TEXT("StartWindow"), // キャプション文字列
-		WS_OVERLAPPED | WS_SYSMENU,	// ウインドウのスタイル
+		WS_OVERLAPPED | WS_SYSMENU | WS_VSCROLL,	// ウインドウのスタイル
 		CW_USEDEFAULT,	// 水平位置
 		CW_USEDEFAULT,	// 垂直位置
 		700,	// 幅
@@ -171,7 +175,7 @@ bool StartWindow::WindowLayout(HWND hwnd){
 		TEXT("確定"),
 		WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON,
 		350,
-		350,
+		330,
 		100,
 		30,
 		hwnd,
@@ -184,16 +188,34 @@ bool StartWindow::WindowLayout(HWND hwnd){
 		return false;
 	}
 
-	HWND BT_close = CreateWindow(
+	HWND BT_Hyozi = CreateWindow(
 		TEXT("BUTTON"),
-		TEXT("閉じる"),
+		TEXT("表示"),
 		WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON,
-		220,
-		350,
+		230,
+		330,
 		100,
 		30,
 		hwnd,
 		(HMENU)5,
+		m_hInstance,
+		NULL
+	);
+
+	if (!BT_Hyozi) {
+		return false;
+	}
+
+	HWND BT_close = CreateWindow(
+		TEXT("BUTTON"),
+		TEXT("閉じる"),
+		WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON,
+		290,
+		400,
+		100,
+		30,
+		hwnd,
+		(HMENU)6,
 		m_hInstance,
 		NULL
 		);
@@ -214,6 +236,7 @@ LRESULT CALLBACK StartWindow::Wndproc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
 	static PAINTSTRUCT *ps = new PAINTSTRUCT;
 	static std::vector<LPWSTR> Contents;
 	static int strsize[3];
+	static SCROLLINFO scinfo;
 
 
 	switch (msg){
@@ -234,7 +257,7 @@ LRESULT CALLBACK StartWindow::Wndproc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
 
 		*hdc = ::BeginPaint(hwnd, ps);
 
-		::DrawText(*hdc, TEXT("\n登録ウィンドウ"), -1, rc, DT_CENTER | DT_WORDBREAK);
+		::DrawText(*hdc, TEXT("\n登録/表示ウィンドウ"), -1, rc, DT_CENTER | DT_WORDBREAK);
 		::DrawText(*hdc, TEXT("\n\n\n\n映画タイトル"), -1, rc, DT_CENTER | DT_WORDBREAK);
 		::DrawText(*hdc, TEXT("\n\n\n\n\n\n\n\nレビュー"), -1, rc, DT_CENTER | DT_WORDBREAK);
 		::DrawText(*hdc, TEXT("\n\n\n\n\n\n\n\n\n\n\n\n\nメモ"), -1, rc, DT_CENTER | DT_WORDBREAK);
@@ -249,6 +272,16 @@ LRESULT CALLBACK StartWindow::Wndproc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
 			::MessageBox(hwnd, TEXT("WindowLayoutメソッドエラー"), TEXT("ErrorInfo"), MB_OK);
 			return 0L;
 		}
+
+		scinfo.cbSize = sizeof(SCROLLINFO);
+		scinfo.fMask = SIF_POS;
+		scinfo.nMin = 0;
+		scinfo.nMax = 1000;
+		scinfo.nPage = 100;
+		scinfo.nPos = 0;
+
+		SetScrollInfo(hwnd, SB_VERT, &scinfo, TRUE);
+
 		break;
 
 	case WM_COMMAND:{
@@ -304,7 +337,17 @@ LRESULT CALLBACK StartWindow::Wndproc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
 
 		}
 
-		case 5:
+		case 5: {
+
+			if (!m_xmlobj->CreateWindowMain()) {
+				PostQuitMessage(0);
+				break;
+			}
+
+			return 0L;
+		}
+
+		case 6:
 			PostQuitMessage(0);
 
 			delete rc;
@@ -314,6 +357,32 @@ LRESULT CALLBACK StartWindow::Wndproc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
 			break;
 
 		}
+
+	case WM_VSCROLL:
+
+		switch (LOWORD(wp)) {
+
+		case SB_LINEUP: scinfo.nPos -= 16; break;
+
+		case SB_LINEDOWN: scinfo.nPos += 16; break;
+
+		case SB_PAGEUP: scinfo.nPos -= scinfo.nPage / 2; break;
+
+		case SB_PAGEDOWN: scinfo.nPos += scinfo.nPage / 2; break;
+
+		case SB_THUMBPOSITION:
+		case SB_THUMBTRACK: scinfo.nPos = HIWORD(wp); break;
+
+		}
+
+		scinfo.nPos = max(scinfo.nMin, min(scinfo.nMax - (signed)scinfo.nPage, scinfo.nPos));
+
+		SetScrollInfo(hwnd, SB_VERT, &scinfo, TRUE);
+		InvalidateRect(hwnd, NULL, TRUE);
+		UpdateWindow(hwnd);
+
+
+		break;
 
 		default:
 			return ::DefWindowProc(hwnd, msg, wp, lp);

@@ -4,6 +4,7 @@
 #include <map>
 
 #include "NextWindow.h"
+#include "XMLWindow.h"
 
 //StartWindowクラス
 //StartWindowを表示
@@ -57,6 +58,9 @@ public:
 
 	//確認画面クラスのオブジェクト
 	static NextWindow *m_obj;
+
+	//XMLウィンドウのオブジェクト
+	static XMLWindow *m_xmlobj;
 
 	//親ウィンドウに属するテキストボックスやボタンのウィンドウハンドルのリスト
 	static std::map<std::string, HWND> m_HandleList;

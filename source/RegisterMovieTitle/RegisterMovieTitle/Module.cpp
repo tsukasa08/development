@@ -1,6 +1,10 @@
 #include <Windows.h>
 #include "StartWindow.h"
 
+//テスト用
+#include "XML.h"
+
+
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow){
 
 	//StartWindowインスタンス化
@@ -13,7 +17,11 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	int result;
 	MSG msg;
 
-	while (result = GetMessage(&msg, NULL, 0, 0)){
+	result = GetMessage(&msg, NULL, 0, 0);
+
+	while (result){
+
+		result = GetMessage(&msg, NULL, 0, 0);
 
 		if (result == -1){
 			break;
