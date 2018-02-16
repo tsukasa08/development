@@ -1,0 +1,5 @@
+﻿  XMLWindow.cpp
+c:\users\tsukasa\desktop\開発ソース\development\source\registermovietitle\registermovietitle\xmlwindow.cpp(51): warning C4302: '型キャスト': 'LPWSTR' から 'WORD' へ切り詰めます。
+c:\users\tsukasa\desktop\開発ソース\development\source\registermovietitle\registermovietitle\xmlwindow.cpp(54): warning C4302: '型キャスト': 'LPWSTR' から 'WORD' へ切り詰めます。
+c:\users\tsukasa\desktop\開発ソース\development\source\registermovietitle\registermovietitle\xmlwindow.cpp(61): warning C4302: '型キャスト': 'LPWSTR' から 'WORD' へ切り詰めます。
+  RegisterMovieTitle.vcxproj -> C:\Users\Tsukasa\Desktop\開発ソース\development\source\RegisterMovieTitle\Debug\RegisterMovieTitle.exe
